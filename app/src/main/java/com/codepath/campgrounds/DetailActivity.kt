@@ -1,34 +1,56 @@
 package com.codepath.campgrounds
 
+import android.os.Build
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-
-private const val TAG = "CampgroundDetailActivity"
-const val CAMPGROUND_EXTRA = "CAMPGROUND_EXTRA"
+import com.bumptech.glide.Glide
 
 class DetailActivity : AppCompatActivity() {
-    private lateinit var campgroundNameTV: TextView
-    private lateinit var campgroundDescriptionTV: TextView
-    private lateinit var campgroundLatLongTV: TextView
-    private lateinit var campgroundImageIV: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detail)
 
-        // TODO: Find the remaining Views for the screen
-        campgroundNameTV = findViewById(R.id.campgroundName)
+        val campgroundNameTV =
+            findViewById<TextView>(R.id.campgroundName)
 
+        val campgroundDescriptionTV =
+            findViewById<TextView>(R.id.campgroundDescription)
 
-        // TODO: Get the extra from the Intent
+        val campgroundLatLongTV =
+            findViewById<TextView>(R.id.campgroundLocation)
 
+        val campgroundImageIV =
+            findViewById<ImageView>(R.id.campgroundImage)
 
-        // TODO:  Set the name, location, and description information
+        val campground: Campground? =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
 
+                intent.getSerializableExtra(
+                    "campground",
+                    Campground::class.java
+                )
 
-        // TODO: Load the image using Glide
+            } else {
 
+                @Suppress("DEPRECATION")
+                intent.getSerializableExtra("campground") as? Campground
+            }
+
+        if (campground == null) {
+            finish()
+            return
+        }
+
+        campgroundNameTV.text = campground.name
+        campgroundDescriptionTV.text = campground.description
+        campgroundLatLongTV.text = campground.latLong
+
+        Glide.with(this)
+            .load(campground.imageUrl)
+            .centerCrop()
+            .into(campgroundImageIV)
     }
 }
